@@ -50,11 +50,72 @@ function compressPapers (done) {
   done()
 }
 
+
+function renameImages (done) {
+  let ext, folder, folderPath, 
+  oldName, newName, logger,
+  counter
+
+  logger = (err, info) => {
+    if (err) {console.log(err)}
+    if (info) {console.log(info)}
+  }
+
+  ext = 'jpg'
+  folderPath = './public/images/wallOfHonor/2022'
+  folder = fs.readdirSync(folderPath)
+
+  counter = 1
+  for (let item of folder) {
+    if (item == 'fullRes') continue
+    oldName = `${folderPath}/${item}`
+    newName = `${folderPath}/${counter}.${ext}`
+    fs.rename(oldName, newName, logger)
+    counter++
+  }
+
+  done()
+}
+
+
+function compressFolder (done) {
+  let pathToHonor, targetFolder, logger,
+  inputPath, outputPath
+
+  pathToHonor = './public/images/wallOfHonor/2022'
+  targetFolder = fs.readdirSync(pathToHonor)
+
+  logger = (err, info) => {
+    if (err) {console.log(err)}
+    if (info) {console.log(info)}
+  }
+
+  if (!fs.existsSync(`${pathToHonor}/min`)) {
+    fs.mkdirSync(`${pathToHonor}/min`)
+  }
+
+  for (let item of targetFolder) {
+    if (item == 'min') {continue}
+    inputPath = `${pathToHonor}/${item}`
+    outputPath =`${pathToHonor}/min/${item}`
+
+    console.log({inputPath, outputPath});
+    sharp(inputPath).resize(400).toFile(outputPath, logger)
+  }
+
+ 
+  done()
+}
+
+
+
 function test (done) {
   console.log('Work without Gulp require!!!')
   done()
 }
 
 exports.honorCompress = honorCompress
+exports.fCompress = compressFolder
 exports.compressPapers = compressPapers
 exports.default = test
+exports.rename = renameImages
